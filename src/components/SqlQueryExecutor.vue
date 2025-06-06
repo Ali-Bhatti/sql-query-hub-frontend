@@ -9,6 +9,7 @@ const loading = ref(false);
 const results = ref(null);
 const error = ref(null);
 const downloadUrl = ref(null);
+const showResults = ref(true);
 
 const addQuery = () => {
     queries.value.push({
@@ -21,10 +22,17 @@ const removeQuery = (index) => {
     queries.value = queries.value.filter((_, i) => i !== index);
 };
 
+const closeResults = () => {
+    results.value = null;
+    downloadUrl.value = null;
+    showResults.value = true;
+};
+
 const executeQueries = async () => {
     loading.value = true;
     error.value = null;
     downloadUrl.value = null;
+    showResults.value = true;
 
     try {
         const dbConfig = dbConfigRef.value.getConfig();
@@ -59,9 +67,26 @@ const executeQueries = async () => {
     }
 };
 
-const downloadResults = () => {
+const downloadResults = async () => {
     if (downloadUrl.value) {
-        window.open(downloadUrl.value, '_blank');
+        try {
+            window.open(downloadUrl.value, '_blank');
+            // Show downloading state
+            results.value = { ...results.value, downloading: true };
+            // Wait a moment to show the downloading state
+            await new Promise(resolve => setTimeout(resolve, 1500));
+            // Update the message to indicate the file might be deleted
+            results.value = { ...results.value, downloaded: true };
+            showResults.value = false;
+            // Auto-close the results after 3 seconds
+            setTimeout(() => {
+                if (results.value?.downloaded) {
+                    closeResults();
+                }
+            }, 3000);
+        } catch (err) {
+            error.value = 'Failed to download results. Please try again.';
+        }
     }
 };
 </script>
@@ -75,19 +100,19 @@ const downloadResults = () => {
 
         <!-- Query Execution Section -->
         <v-col cols="12" md="8">
-            <v-card class="mb-6 query-card" elevation="2">
-                <v-card-title class="text-h5 pa-4 d-flex align-center">
-                    <v-icon icon="mdi-console-line" class="mr-2" />
+            <v-card class="query-card" elevation="1">
+                <v-card-title class="text-h6 pa-4 d-flex align-center">
+                    <v-icon icon="mdi-console-line" class="mr-2" color="primary" />
                     SQL Query Executor
                 </v-card-title>
 
                 <v-card-text>
                     <v-form @submit.prevent="executeQueries">
-                        <div v-for="(query, index) in queries" :key="query.id"
-                            class="query-section mb-4 pa-3 rounded bg-grey-lighten-4">
+                        <div v-for="(query, index) in queries" :key="query.id" class="query-section mb-4">
                             <div class="d-flex align-center mb-3">
-                                <v-chip color="primary" class="mr-2" size="small">{{ index + 1 }}</v-chip>
-                                <h3 class="text-h6 mb-0">Query</h3>
+                                <v-chip color="primary" variant="tonal" class="mr-2" size="small">{{ index + 1
+                                }}</v-chip>
+                                <h3 class="text-subtitle-1 font-weight-medium mb-0">Query</h3>
                                 <v-spacer></v-spacer>
                                 <v-btn icon size="small" color="error" variant="tonal" @click="removeQuery(index)"
                                     :disabled="queries.length === 1"
@@ -105,12 +130,12 @@ const downloadResults = () => {
                         </div>
 
                         <div class="d-flex flex-wrap justify-space-between align-center gap-4 mt-4">
-                            <v-btn color="secondary" prepend-icon="mdi-plus" @click="addQuery" variant="tonal"
+                            <v-btn color="primary" prepend-icon="mdi-plus" @click="addQuery" variant="tonal"
                                 :disabled="loading">
                                 Add Query
                             </v-btn>
 
-                            <v-btn color="primary" type="submit" :loading="loading" prepend-icon="mdi-play" size="large"
+                            <v-btn color="primary" type="submit" :loading="loading" prepend-icon="mdi-play"
                                 class="px-6">
                                 Execute Queries
                             </v-btn>
@@ -119,27 +144,49 @@ const downloadResults = () => {
                 </v-card-text>
             </v-card>
 
-            <v-alert v-if="error" type="error" variant="tonal" closable class="mb-4">
+            <v-alert v-if="error" type="error" variant="tonal" closable class="mt-4">
                 {{ error }}
             </v-alert>
 
-            <v-card v-if="results" class="mt-4 results-card" elevation="2">
-                <v-card-title class="text-h6 pa-4 d-flex align-center">
-                    <v-icon icon="mdi-check-circle" color="success" class="mr-2" />
-                    Execution Results
-                </v-card-title>
-                <v-card-text>
-                    <v-alert color="success" variant="tonal" class="mb-4">
-                        Queries executed successfully! Results are ready for download.
-                    </v-alert>
-                    <div class="text-center">
-                        <v-btn color="primary" prepend-icon="mdi-download" @click="downloadResults"
-                            :disabled="!downloadUrl" size="large" class="px-6">
-                            Download Results
-                        </v-btn>
-                    </div>
-                </v-card-text>
-            </v-card>
+            <v-slide-y-transition>
+                <v-card v-if="results && showResults" class="mt-4 results-card" elevation="1">
+                    <v-card-title class="text-h6 pa-4 d-flex align-center justify-space-between">
+                        <div class="d-flex align-center">
+                            <v-icon
+                                :icon="results.downloading ? 'mdi-download-circle' : results.downloaded ? 'mdi-check-circle' : 'mdi-check-circle'"
+                                :color="results.downloading ? 'info' : 'success'" class="mr-2" />
+                            Execution Results
+                        </div>
+                        <v-btn density="comfortable" variant="plain" icon="$close" size="small" @click="closeResults"
+                            :disabled="results.downloading" />
+                    </v-card-title>
+                    <v-card-text>
+                        <v-alert :color="results.downloading ? 'info' : results.downloaded ? 'success' : 'success'"
+                            variant="tonal" class="mb-4">
+                            <template v-if="results.downloading">
+                                <div class="d-flex align-center">
+                                    <v-progress-circular indeterminate size="20" width="2" color="info" class="mr-2" />
+                                    Downloading your results...
+                                </div>
+                            </template>
+                            <template v-else-if="results.downloaded">
+                                Results downloaded successfully! The file will be removed from the server shortly.
+                            </template>
+                            <template v-else>
+                                Queries executed successfully! Results are ready for download. Once you download the
+                                results, they will be deleted from the server.
+                            </template>
+                        </v-alert>
+                        <div class="text-center">
+                            <v-btn color="primary" prepend-icon="mdi-download" @click="downloadResults"
+                                :disabled="!downloadUrl || results.downloading || results.downloaded" class="px-6">
+                                {{ results.downloading ? 'Downloading...' : results.downloaded ? 'Downloaded' :
+                                    'Download Results' }}
+                            </v-btn>
+                        </div>
+                    </v-card-text>
+                </v-card>
+            </v-slide-y-transition>
         </v-col>
     </v-row>
 </template>
@@ -147,38 +194,82 @@ const downloadResults = () => {
 <style scoped>
 .query-card,
 .results-card {
-    border: 1px solid #e0e0e0;
+    border: 1px solid rgba(25, 118, 210, 0.1);
+    border-radius: 8px;
+    background: white !important;
 }
 
 .query-section {
-    border: 1px solid #e0e0e0;
-    transition: all 0.3s ease;
-}
-
-.query-section:hover {
-    border-color: var(--v-primary-base);
-    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+    background: rgb(241, 243, 245) !important;
+    border: 1px solid rgba(25, 118, 210, 0.1);
+    border-radius: 8px;
+    padding: 16px;
 }
 
 .query-input :deep(.v-field) {
     border-radius: 8px;
     font-family: 'Fira Code', monospace;
+    transition: all 0.3s ease;
+    background: white !important;
+}
+
+.query-input :deep(.v-field:hover:not(.v-field--disabled)) {
+    border-color: rgba(25, 118, 210, 0.5);
 }
 
 .delete-btn-disabled {
     opacity: 0.5;
 }
 
-.delete-btn-enabled {
-    opacity: 1;
+.delete-btn-enabled:hover {
+    transform: scale(1.05);
+    transition: transform 0.2s ease;
 }
 
-:deep(.v-btn) {
-    text-transform: none;
-    letter-spacing: normal;
+@media (max-width: 600px) {
+    .query-section {
+        margin-left: -16px;
+        margin-right: -16px;
+        border-radius: 0;
+    }
 }
 
-:deep(.v-alert) {
+.results-card {
+    border: 1px solid rgba(25, 118, 210, 0.1);
     border-radius: 8px;
+    background: white !important;
+    transition: all 0.3s ease;
+}
+
+.v-slide-y-transition-enter-active,
+.v-slide-y-transition-leave-active {
+    transition: all 0.3s ease;
+}
+
+.v-slide-y-transition-enter-from,
+.v-slide-y-transition-leave-to {
+    opacity: 0;
+    transform: translateY(-20px);
+}
+
+.close-btn {
+    background: none;
+    border: none;
+    font-size: 24px;
+    line-height: 1;
+    padding: 4px 8px;
+    cursor: pointer;
+    color: rgba(0, 0, 0, 0.54);
+    transition: color 0.2s ease;
+    margin: -4px -4px -4px 8px;
+}
+
+.close-btn:hover {
+    color: rgba(0, 0, 0, 0.87);
+}
+
+.close-btn:disabled {
+    cursor: not-allowed;
+    opacity: 0.5;
 }
 </style>

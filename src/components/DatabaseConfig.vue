@@ -108,15 +108,15 @@ defineExpose({
 </script>
 
 <template>
-    <v-card class="mb-6 config-card" elevation="2">
-        <v-card-title class="text-h5 pa-4 d-flex align-center">
-            <v-icon icon="mdi-database-cog" class="mr-2" />
+    <v-card class="config-card" elevation="1">
+        <v-card-title class="text-h6 pa-4 d-flex align-center">
+            <v-icon icon="mdi-database-cog" class="mr-2" color="primary" />
             Database Configuration
         </v-card-title>
 
         <v-card-text>
             <!-- Server Type Selection -->
-            <div class="mb-1">
+            <div class="mb-4">
                 <v-select v-model="dbConfig.type" :items="serverTypes" item-title="title" item-value="value"
                     label="Server Type" variant="outlined" density="comfortable" class="server-type-select"
                     :prepend-inner-icon="serverTypes.find(t => t.value === dbConfig.type)?.icon || 'mdi-database'">
@@ -128,14 +128,14 @@ defineExpose({
             </div>
 
             <!-- Config File Upload Section -->
-            <v-card class="mb-4 pa-3 bg-grey-lighten-4" variant="flat">
+            <v-card class="mb-4 upload-section" variant="flat">
                 <div class="d-flex align-center gap-2">
                     <v-file-input v-model="configFile" label="Upload Config File" accept=".json"
                         @change="handleFileUpload" variant="outlined" density="comfortable" hide-details
                         class="upload-input" prepend-icon="mdi-file-upload"
                         :error-messages="uploadError"></v-file-input>
 
-                    <v-btn color="info" prepend-icon="mdi-download" @click="downloadConfigTemplate" variant="tonal"
+                    <v-btn color="primary" prepend-icon="mdi-download" @click="downloadConfigTemplate" variant="tonal"
                         class="flex-shrink-0 ml-2 template-btn">
                         Template
                     </v-btn>
@@ -143,11 +143,10 @@ defineExpose({
             </v-card>
 
             <!-- Database Configurations -->
-            <div v-for="(config, index) in dbConfig.configs" :key="config.id"
-                class="database-config mb-4 pa-3 rounded bg-grey-lighten-4">
+            <div v-for="(config, index) in dbConfig.configs" :key="config.id" class="database-config mb-4">
                 <div class="d-flex align-center mb-3">
-                    <v-chip color="primary" class="mr-2" size="small">{{ index + 1 }}</v-chip>
-                    <h3 class="text-h6 mb-0">Database Configuration</h3>
+                    <v-chip color="primary" variant="tonal" class="mr-2" size="small">{{ index + 1 }}</v-chip>
+                    <h3 class="text-subtitle-1 font-weight-medium mb-0">Database Configuration</h3>
                     <v-spacer></v-spacer>
                     <v-btn icon size="small" color="error" variant="tonal" @click="removeConfig(index)"
                         :disabled="dbConfig.configs.length === 1"
@@ -160,48 +159,45 @@ defineExpose({
                 <v-row dense>
                     <v-col cols="12" sm="6">
                         <v-text-field v-model="config.name" label="Connection Name" variant="outlined"
-                            density="comfortable" prepend-inner-icon="mdi-tag" hide-details class="mb-3"
-                            style="width: 100%;"></v-text-field>
+                            density="comfortable" prepend-inner-icon="mdi-tag" hide-details
+                            class="mb-3 config-input"></v-text-field>
                     </v-col>
                     <v-col cols="12" sm="6">
                         <v-text-field v-model="config.host" label="Host" variant="outlined" density="comfortable"
-                            prepend-inner-icon="mdi-server" hide-details class="mb-3"
-                            style="width: 100%;"></v-text-field>
+                            prepend-inner-icon="mdi-server" hide-details class="mb-3 config-input"></v-text-field>
                     </v-col>
                 </v-row>
 
                 <v-row dense>
                     <v-col cols="12" sm="6">
                         <v-text-field v-model="config.port" label="Port" variant="outlined" density="comfortable"
-                            prepend-inner-icon="mdi-numeric" hide-details class="mb-3"
-                            style="width: 100%;"></v-text-field>
+                            prepend-inner-icon="mdi-numeric" hide-details class="mb-3 config-input"></v-text-field>
                     </v-col>
                     <v-col cols="12" sm="6">
                         <v-text-field v-model="config.database" label="Database" variant="outlined"
-                            density="comfortable" prepend-inner-icon="mdi-database" hide-details class="mb-3"
-                            style="width: 100%;"></v-text-field>
+                            density="comfortable" prepend-inner-icon="mdi-database" hide-details
+                            class="mb-3 config-input"></v-text-field>
                     </v-col>
                 </v-row>
 
                 <v-row dense>
                     <v-col cols="12" sm="6">
                         <v-text-field v-model="config.user" label="Username" variant="outlined" density="comfortable"
-                            prepend-inner-icon="mdi-account" hide-details style="width: 100%;"></v-text-field>
+                            prepend-inner-icon="mdi-account" hide-details class="config-input"></v-text-field>
                     </v-col>
                     <v-col cols="12" sm="6">
                         <v-text-field v-model="config.password" :type="showPasswords[index] ? 'text' : 'password'"
                             label="Password" variant="outlined" density="comfortable" prepend-inner-icon="mdi-lock"
                             hide-details :append-inner-icon="showPasswords[index] ? 'mdi-eye-off' : 'mdi-eye'"
-                            @click:append-inner="togglePasswordVisibility(index)" style="width: 100%;"></v-text-field>
+                            @click:append-inner="togglePasswordVisibility(index)" class="config-input"></v-text-field>
                     </v-col>
                 </v-row>
             </div>
 
             <!-- Add Database Button -->
             <div class="text-center mt-4">
-                <v-btn color="primary" prepend-icon="mdi-database-plus" @click="addConfig" variant="tonal" size="large"
-                    class="px-6">
-                    Add Another Database
+                <v-btn color="primary" prepend-icon="mdi-database-plus" @click="addConfig" variant="tonal">
+                    Add Database
                 </v-btn>
             </div>
         </v-card-text>
@@ -210,65 +206,53 @@ defineExpose({
 
 <style scoped>
 .config-card {
-    border: 1px solid #e0e0e0;
+    border: 1px solid rgba(25, 118, 210, 0.1);
+    border-radius: 8px;
+    background: white !important;
+}
+
+.upload-section {
+    background: rgb(241, 243, 245) !important;
+    border: 1px solid rgba(25, 118, 210, 0.1);
+    border-radius: 8px;
+    padding: 16px;
 }
 
 .database-config {
-    border: 1px solid #e0e0e0;
-    transition: all 0.3s ease;
-    width: 100%;
-}
-
-.database-config:hover {
-    border-color: var(--v-primary-base);
-    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
-}
-
-.server-type-select {
-    max-width: 100%;
-}
-
-.upload-input {
-    max-width: none !important;
-}
-
-.template-btn {
-    min-width: 120px;
-}
-
-:deep(.v-field) {
+    background: rgb(241, 243, 245) !important;
+    border: 1px solid rgba(25, 118, 210, 0.1);
     border-radius: 8px;
-    width: 100%;
+    padding: 16px;
 }
 
-:deep(.v-btn) {
-    text-transform: none;
-    letter-spacing: normal;
+.config-input :deep(.v-field) {
+    border-radius: 8px;
+    transition: all 0.3s ease;
+    background: white !important;
 }
 
-:deep(.v-row) {
-    margin: 0 -8px;
-    width: 100%;
-}
-
-:deep(.v-col) {
-    padding: 0 8px;
-    flex: 1;
-}
-
-:deep(.v-input) {
-    width: 100% !important;
-}
-
-:deep(.v-field__input) {
-    min-height: 40px !important;
+.config-input :deep(.v-field:hover) {
+    border-color: rgba(25, 118, 210, 0.5);
 }
 
 .delete-btn-disabled {
     opacity: 0.5;
 }
 
-.delete-btn-enabled {
-    opacity: 1;
+.delete-btn-enabled:hover {
+    transform: scale(1.05);
+    transition: transform 0.2s ease;
+}
+
+.template-btn {
+    white-space: nowrap;
+}
+
+@media (max-width: 600px) {
+    .database-config {
+        margin-left: -16px;
+        margin-right: -16px;
+        border-radius: 0;
+    }
 }
 </style>
