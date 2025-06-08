@@ -28,7 +28,7 @@ The application is deployed and accessible at: [SQL Query Hub](https://sql-query
 - Node.js (v16 or higher)
 - npm (v7 or higher)
 
-### Installation
+### Local Installation
 
 1. Clone the repository:
 ```bash
@@ -51,25 +51,6 @@ VITE_API_URL=http://localhost:3000  # For local development
 npm run dev
 ```
 
-## 📦 Building for Production
-
-```bash
-npm run build
-```
-
-## 🌍 Deployment
-
-The application is deployed on Netlify. For deploying your own instance:
-
-1. Fork this repository
-2. Sign up on [Netlify](https://www.netlify.com)
-3. Create a new site from Git
-4. Connect your forked repository
-5. Configure build settings:
-   - Build command: `npm run build`
-   - Publish directory: `dist`
-6. Add environment variables in Netlify dashboard:
-   - `VITE_API_URL`: Your backend API URL
 
 ## 🔧 Configuration
 
@@ -117,18 +98,6 @@ Tested and supported in:
 - Safari (latest)
 - Edge (latest)
 
-## 🤝 Contributing
-
-1. Fork the repository
-2. Create your feature branch
-3. Commit your changes
-4. Push to the branch
-5. Create a new Pull Request
-
-## 📄 License
-
-This project is licensed under the MIT License - see the LICENSE file for details.
-
 ## Project Structure
 
 ```
@@ -147,86 +116,10 @@ sql-query-hub-frontend/
 └── package.json                 # Project dependencies
 ```
 
-## Development
-
-Start the development server:
-```bash
-npm run dev
-```
-
-Build for production:
-```bash
-npm run build
-```
-
-Preview production build:
-```bash
-npm run preview
-```
-
-## Component Documentation
-
-### DatabaseConfig Component
-- Handles database connection configuration
-- Supports MySQL, PostgreSQL, and MSSQL
-- Validates connection parameters
-- Provides connection status feedback
-
-### SqlQueryExecutor Component
-- Manages multiple SQL queries
-- Provides query execution controls
-- Displays execution results
-- Handles file downloads
-- Shows execution status and errors
-
-## Features in Detail
-
-### Query Management
-- Add unlimited number of queries
-- Remove individual queries
-- Clear visual separation between queries
-- Query numbering for easy reference
-
-### Database Configuration
-- Support for multiple database types
-- Secure password handling
-- Connection parameter validation
-- Connection testing capability
-
-### Results Handling
-- Automatic download of query results
-- ZIP file containing all query outputs
-- CSV format for easy data analysis
-- Execution logs included
-
-### Error Handling
-- Clear error messages
-- Visual error indicators
-- Connection validation
-- Query syntax validation
-
-## Styling
-
-The application uses Vuetify 3 with custom styling enhancements:
-- Modern and clean UI
-- Responsive design
-- Consistent color scheme
-- Intuitive icons and buttons
-- Smooth animations and transitions
-
-## Browser Support
-
-Tested and supported in:
-- Chrome (latest)
-- Firefox (latest)
-- Safari (latest)
-- Edge (latest)
-
-## Contributing
+## 🤝 Contributing
 
 1. Fork the repository
 2. Create your feature branch
 3. Commit your changes
 4. Push to the branch
 5. Create a new Pull Request
-
