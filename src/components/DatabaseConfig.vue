@@ -26,6 +26,13 @@ const showPasswords = ref(new Array(dbConfig.value.configs.length).fill(false));
 const configFile = ref(null);
 const uploadError = ref('');
 
+const formatFileName = (file) => {
+    if (!file) return '';
+    const name = file.name;
+    if (name.length <= 10) return name;
+    return `${name.substring(0, 10)}...${name.substring(name.lastIndexOf('.'))}`;
+};
+
 const addConfig = () => {
     dbConfig.value.configs.push({
         id: dbConfig.value.configs.length + 1,
@@ -129,14 +136,18 @@ defineExpose({
 
             <!-- Config File Upload Section -->
             <v-card class="mb-4 upload-section" variant="flat">
-                <div class="d-flex align-center gap-2">
+                <div class="d-flex align-center gap-3">
                     <v-file-input v-model="configFile" label="Upload Config File" accept=".json"
                         @change="handleFileUpload" variant="outlined" density="comfortable" hide-details
-                        class="upload-input" prepend-icon="mdi-file-upload"
-                        :error-messages="uploadError"></v-file-input>
+                        class="upload-input mb-0" :error-messages="uploadError" :model-value="configFile"
+                        :prepend-icon="configFile ? 'mdi-file-check' : 'mdi-file-upload'">
+                        <template v-slot:selection>
+                            <span>{{ formatFileName(configFile) }}</span>
+                        </template>
+                    </v-file-input>
 
                     <v-btn color="primary" prepend-icon="mdi-download" @click="downloadConfigTemplate" variant="tonal"
-                        class="flex-shrink-0 ml-2 template-btn">
+                        class="template-btn ml-2 flex-shrink-0" min-width="120">
                         Template
                     </v-btn>
                 </div>
@@ -218,6 +229,16 @@ defineExpose({
     padding: 16px;
 }
 
+.upload-input {
+    flex: 1;
+}
+
+.upload-input :deep(.v-field__input) {
+    min-height: 40px !important;
+    padding-top: 0 !important;
+    padding-bottom: 0 !important;
+}
+
 .database-config {
     background: rgb(241, 243, 245) !important;
     border: 1px solid rgba(25, 118, 210, 0.1);
@@ -249,6 +270,19 @@ defineExpose({
 }
 
 @media (max-width: 600px) {
+    .upload-section>div {
+        flex-direction: column;
+    }
+
+    .template-btn {
+        width: 100%;
+        margin-top: 8px;
+    }
+
+    .upload-input {
+        width: 100%;
+    }
+
     .database-config {
         margin-left: -16px;
         margin-right: -16px;
