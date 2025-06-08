@@ -1,5 +1,5 @@
 <script setup>
-import { ref } from 'vue';
+import { ref, onUnmounted } from 'vue';
 import DatabaseConfig from './DatabaseConfig.vue';
 
 const API_URL = import.meta.env.VITE_API_URL || 'http://localhost:3000';
@@ -8,8 +8,28 @@ const queries = ref([{ id: 1, text: '' }]);
 const loading = ref(false);
 const results = ref(null);
 const error = ref(null);
+const errorTimeout = ref(null);
 const downloadUrl = ref(null);
 const showResults = ref(true);
+
+const validateDbConfig = (config) => {
+    if (!config || !config.type || !Array.isArray(config.configs) || config.configs.length === 0) {
+        return false;
+    }
+
+    return config.configs.every(conf =>
+        conf.name?.trim() &&
+        conf.host?.trim() &&
+        conf.port?.trim() &&
+        conf.user?.trim() &&
+        conf.password?.trim() &&
+        conf.database?.trim()
+    );
+};
+
+const validateQueries = () => {
+    return queries.value.some(query => query.text?.trim().length > 0);
+};
 
 const addQuery = () => {
     queries.value.push({
@@ -28,14 +48,54 @@ const closeResults = () => {
     showResults.value = true;
 };
 
+const setError = (message) => {
+    error.value = message;
+
+    // Clear any existing timeout
+    if (errorTimeout.value) {
+        clearTimeout(errorTimeout.value);
+    }
+
+    // Set new timeout to clear error after 5 seconds
+    errorTimeout.value = setTimeout(() => {
+        error.value = null;
+        errorTimeout.value = null;
+    }, 5000);
+};
+
+// Clean up timeout when component is unmounted
+onUnmounted(() => {
+    if (errorTimeout.value) {
+        clearTimeout(errorTimeout.value);
+    }
+});
+
 const executeQueries = async () => {
-    loading.value = true;
+    // Clear any existing error
+    if (errorTimeout.value) {
+        clearTimeout(errorTimeout.value);
+        errorTimeout.value = null;
+    }
     error.value = null;
+
+    // Get and validate database configuration
+    const dbConfig = dbConfigRef.value?.getConfig();
+    if (!validateDbConfig(dbConfig)) {
+        setError('Please fill in all database configuration fields');
+        return;
+    }
+
+    // Validate queries
+    if (!validateQueries()) {
+        setError('Please enter at least one non-empty query');
+        return;
+    }
+
+    loading.value = true;
     downloadUrl.value = null;
     showResults.value = true;
 
     try {
-        const dbConfig = dbConfigRef.value.getConfig();
         const response = await fetch(`${API_URL}/api/queries/execute-queries`, {
             method: 'POST',
             headers: {
@@ -60,7 +120,7 @@ const executeQueries = async () => {
             downloadUrl.value = `${API_URL}/api/queries/download-results?zipPath=${encodeURIComponent(data.zipPath)}`;
         }
     } catch (err) {
-        error.value = err.message;
+        setError(err.message);
         console.error('Query execution error:', err);
     } finally {
         loading.value = false;
@@ -111,7 +171,7 @@ const downloadResults = async () => {
                         <div v-for="(query, index) in queries" :key="query.id" class="query-section mb-4">
                             <div class="d-flex align-center mb-3">
                                 <v-chip color="primary" variant="tonal" class="mr-2" size="small">{{ index + 1
-                                }}</v-chip>
+                                    }}</v-chip>
                                 <h3 class="text-subtitle-1 font-weight-medium mb-0">Query</h3>
                                 <v-spacer></v-spacer>
                                 <v-btn icon size="small" color="error" variant="tonal" @click="removeQuery(index)"
@@ -140,13 +200,17 @@ const downloadResults = async () => {
                                 Execute Queries
                             </v-btn>
                         </div>
+
+                        <!-- Error Alert with Vuetify Transition -->
+                        <v-slide-y-transition>
+                            <v-alert v-if="error" type="error" variant="tonal" closable class="mt-4"
+                                @click:close="error = null">
+                                {{ error }}
+                            </v-alert>
+                        </v-slide-y-transition>
                     </v-form>
                 </v-card-text>
             </v-card>
-
-            <v-alert v-if="error" type="error" variant="tonal" closable class="mt-4">
-                {{ error }}
-            </v-alert>
 
             <v-slide-y-transition>
                 <v-card v-if="results && showResults" class="mt-4 results-card" elevation="1">

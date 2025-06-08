@@ -1,29 +1,38 @@
 # SQL Query Hub - Frontend
 
-A modern Vue.js frontend application for executing SQL queries with a beautiful and intuitive user interface. Built with Vue 3, Vuetify, and Vite for optimal performance and developer experience.
+A modern Vue.js application for executing SQL queries across multiple databases with a beautiful and intuitive user interface.
 
-## Features
+## 🌐 Live Demo
+The application is deployed and accessible at: [SQL Query Hub](https://sql-query-hub.netlify.app)
 
-- **Modern UI**: Clean and intuitive interface built with Vuetify 3
-- **Multi-Query Support**: Execute multiple SQL queries simultaneously
-- **Dynamic Query Management**: Add or remove queries dynamically
-- **Real-time Feedback**: Visual feedback for query execution status
-- **Database Configuration**: Easy-to-use database connection setup
-- **Results Download**: Download query results in ZIP format
+## ✨ Features
+
+- **Multi-Database Support**: Execute queries on MySQL, PostgreSQL, and MSSQL databases
+- **Batch Query Execution**: Run multiple SQL queries simultaneously
+- **Query Results Export**: Automatically exports results to downloadable files
+- **Modern UI/UX**: Clean and intuitive interface built with Vuetify 3
+- **Real-time Validation**: Immediate feedback on configuration and query inputs
 - **Responsive Design**: Works seamlessly on desktop and mobile devices
-- **Error Handling**: Clear error messages and user feedback
 
-## Prerequisites
+## 🛠️ Tech Stack
 
+- Vue.js 3
+- Vuetify 3
+- Vite
+- Node.js
+- Netlify (Hosting)
+
+## 🚀 Getting Started
+
+### Prerequisites
 - Node.js (v16 or higher)
 - npm (v7 or higher)
-- Modern web browser
 
-## Installation
+### Installation
 
 1. Clone the repository:
 ```bash
-git clone <repository-url>
+git clone https://github.com/Ali-Bhatti/sql-query-hub-frontend.git
 cd sql-query-hub-frontend
 ```
 
@@ -34,8 +43,91 @@ npm install
 
 3. Create a `.env` file in the root directory:
 ```env
-VITE_API_URL=http://localhost:3000
+VITE_API_URL=http://localhost:3000  # For local development
 ```
+
+4. Run the development server:
+```bash
+npm run dev
+```
+
+## 📦 Building for Production
+
+```bash
+npm run build
+```
+
+## 🌍 Deployment
+
+The application is deployed on Netlify. For deploying your own instance:
+
+1. Fork this repository
+2. Sign up on [Netlify](https://www.netlify.com)
+3. Create a new site from Git
+4. Connect your forked repository
+5. Configure build settings:
+   - Build command: `npm run build`
+   - Publish directory: `dist`
+6. Add environment variables in Netlify dashboard:
+   - `VITE_API_URL`: Your backend API URL
+
+## 🔧 Configuration
+
+### Environment Variables
+
+| Variable | Description | Default |
+|----------|-------------|---------|
+| VITE_API_URL | Backend API URL | http://localhost:3000 |
+
+## 📱 Features in Detail
+
+### Database Configuration
+- Support for multiple database types
+- Secure password handling
+- Connection parameter validation
+- Connection testing capability
+- Config file upload/download
+
+### Query Management
+- Multiple query support
+- Query validation
+- Real-time error feedback
+- Auto-dismissing notifications
+
+### Results Handling
+- Automatic download of query results
+- ZIP file containing all query outputs
+- CSV format for easy data analysis
+- Execution logs included
+
+## 🎨 UI/UX Features
+
+- Modern and clean interface
+- Responsive design
+- Consistent color scheme
+- Intuitive icons and buttons
+- Smooth animations and transitions
+- Error handling with visual feedback
+
+## 🌐 Browser Support
+
+Tested and supported in:
+- Chrome (latest)
+- Firefox (latest)
+- Safari (latest)
+- Edge (latest)
+
+## 🤝 Contributing
+
+1. Fork the repository
+2. Create your feature branch
+3. Commit your changes
+4. Push to the branch
+5. Create a new Pull Request
+
+## 📄 License
+
+This project is licensed under the MIT License - see the LICENSE file for details.
 
 ## Project Structure
 
@@ -86,12 +178,6 @@ npm run preview
 - Displays execution results
 - Handles file downloads
 - Shows execution status and errors
-
-## Environment Variables
-
-| Variable | Description | Default |
-|----------|-------------|---------|
-| VITE_API_URL | Backend API URL | http://localhost:3000 |
 
 ## Features in Detail
 
