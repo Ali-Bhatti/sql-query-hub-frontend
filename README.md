@@ -20,7 +20,7 @@ The application is deployed and accessible at: [SQL Query Hub](https://sql-query
 - Vuetify 3
 - Vite
 - Node.js
-- Netlify (for Hosting)
+- Netlify (Hosting)
 
 ## 🚀 Getting Started
 
